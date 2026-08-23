@@ -23,10 +23,10 @@ API simples com dois recursos:
    npm install
    ```
 
-2. Configure a variável `DATABASE_URL` no arquivo `.env` (já preenchido apontando para o Postgres local):
+2. Configure a variável `DATABASE_URL` no arquivo `.env`:
 
    ```
-   DATABASE_URL="postgresql://postgres:Visa5492@localhost:5432/api-teste?schema=public"
+   DATABASE_URL="postgresql://SEU_USUARIO_POSTGRES:SUA_SEHA_POSTGRES@localhost:5432/api-teste?schema=public"
    ```
 
 3. Crie o banco `api-teste` no PostgreSQL (caso ainda não exista) e rode a migration do Prisma:
