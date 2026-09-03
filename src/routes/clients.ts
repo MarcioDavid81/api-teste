@@ -132,7 +132,7 @@ export async function clientRoutes(app: FastifyInstance) {
 
       await prisma.client.delete({ where: { id } });
 
-      return { message: "Cliente removido com sucesso" };
+      return reply.status(200).send({ message: "Cliente removido" });
     }
   );
 }

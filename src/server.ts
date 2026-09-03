@@ -9,7 +9,7 @@ app
   .listen({ port, host: "0.0.0.0" })
   .then((address) => {
     app.log.info(`Servidor rodando em ${address}`);
-    app.log.info(`Documentação disponível em ${address}/docs`);
+    app.log.info(`Documentacao disponivel em ${address}/docs`);
   })
   .catch((err) => {
     app.log.error(err);

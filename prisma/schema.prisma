@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output = "./generated"
+  provider = "prisma-client"
+  output   = "../src/generated"
 }
 
 datasource db {
@@ -27,4 +27,26 @@ model Client {
   updatedAt DateTime @updatedAt
 
   @@map("clients")
+}
+
+model ProductClass {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@map("product_classes")
+}
+
+model Product {
+  id             String       @id @default(uuid())
+  name           String
+  productClassId String
+  productClass   ProductClass @relation(fields: [productClassId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("products")
 }

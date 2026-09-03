@@ -1,8 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { prisma } from "../lib/prisma.js";
+import { makeUsersController } from "../modules/users/factories/make-users-controller.js";
 import {
   createUserSchema,
   updateUserSchema,
@@ -11,10 +10,9 @@ import {
 } from "../schemas/user.js";
 import { errorSchema, messageSchema } from "../schemas/common.js";
 
-const SALT_ROUNDS = 10;
-
 export async function userRoutes(app: FastifyInstance) {
   const server = app.withTypeProvider<ZodTypeProvider>();
+  const usersController = makeUsersController();
 
   server.post(
     "/users",
@@ -29,22 +27,7 @@ export async function userRoutes(app: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
-      const { name, email, password } = request.body;
-
-      const existing = await prisma.user.findUnique({ where: { email } });
-      if (existing) {
-        return reply.status(409).send({ message: "E-mail já cadastrado" });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-
-      const user = await prisma.user.create({
-        data: { name, email, password: hashedPassword },
-      });
-
-      return reply.status(201).send(user);
-    }
+    (request, reply) => usersController.create(request, reply),
   );
 
   server.get(
@@ -58,9 +41,7 @@ export async function userRoutes(app: FastifyInstance) {
         },
       },
     },
-    async () => {
-      return prisma.user.findMany({ orderBy: { createdAt: "desc" } });
-    }
+    (request, reply) => usersController.list(request, reply),
   );
 
   server.get(
@@ -76,16 +57,7 @@ export async function userRoutes(app: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
-      const { id } = request.params;
-      const user = await prisma.user.findUnique({ where: { id } });
-
-      if (!user) {
-        return reply.status(404).send({ message: "Usuário não encontrado" });
-      }
-
-      return user;
-    }
+    (request, reply) => usersController.getById(request, reply),
   );
 
   server.put(
@@ -103,33 +75,7 @@ export async function userRoutes(app: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
-      const { id } = request.params;
-      const { name, email, password } = request.body;
-
-      const user = await prisma.user.findUnique({ where: { id } });
-      if (!user) {
-        return reply.status(404).send({ message: "Usuário não encontrado" });
-      }
-
-      if (email && email !== user.email) {
-        const existing = await prisma.user.findUnique({ where: { email } });
-        if (existing) {
-          return reply.status(409).send({ message: "E-mail já cadastrado" });
-        }
-      }
-
-      const updated = await prisma.user.update({
-        where: { id },
-        data: {
-          name,
-          email,
-          password: password ? await bcrypt.hash(password, SALT_ROUNDS) : undefined,
-        },
-      });
-
-      return updated;
-    }
+    (request, reply) => usersController.update(request, reply),
   );
 
   server.delete(
@@ -145,17 +91,6 @@ export async function userRoutes(app: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
-      const { id } = request.params;
-
-      const user = await prisma.user.findUnique({ where: { id } });
-      if (!user) {
-        return reply.status(404).send({ message: "Usuário não encontrado" });
-      }
-
-      await prisma.user.delete({ where: { id } });
-
-      return { message: "Usuário removido com sucesso" };
-    }
+    (request, reply) => usersController.delete(request, reply),
   );
 }

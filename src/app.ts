@@ -9,6 +9,8 @@ import {
 } from "fastify-type-provider-zod";
 import { userRoutes } from "./routes/users.js";
 import { clientRoutes } from "./routes/clients.js";
+import { productClassRoutes } from "./routes/product-classes.js";
+import { productRoutes } from "./routes/products.js";
 
 export function buildApp() {
   const app = Fastify({
@@ -28,6 +30,8 @@ export function buildApp() {
       tags: [
         { name: "Usuários", description: "Cadastro de usuários" },
         { name: "Clientes", description: "Cadastro de clientes" },
+        { name: "Classes de Produtos", description: "Cadastro de classes de produtos" },
+        { name: "Produtos", description: "Cadastro de produtos" },
       ],
     },
     transform: jsonSchemaTransform,
@@ -41,6 +45,8 @@ export function buildApp() {
 
   app.register(userRoutes);
   app.register(clientRoutes);
+  app.register(productClassRoutes);
+  app.register(productRoutes);
 
   return app;
 }
